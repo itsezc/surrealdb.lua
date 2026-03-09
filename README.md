@@ -16,18 +16,61 @@ SurrealDB client SDK for Lua and Luau (Roblox), with a shared core for any Lua a
 
 ## Public API
 
-Create a client:
+### Runtime-specific entrypoints (recommended)
+
+FiveM (adapter included):
+
+```lua
+local Surreal = require("src/fivem")
+
+local client = Surreal.new_client({
+  url = "http://127.0.0.1:8000",
+  namespace = "app", -- optional
+  database = "main", -- optional
+  token = nil,       -- optional
+  timeout_ms = 5000, -- optional
+})
+```
+
+Roblox/Luau (adapter included):
+
+```lua
+local Surreal = require(game.ServerStorage.Packages.SurrealDB.roblox)
+
+local client = Surreal.new_client({
+  url = "http://127.0.0.1:8000",
+  namespace = "app", -- optional
+  database = "main", -- optional
+  token = nil,       -- optional
+  timeout_ms = 5000, -- optional
+})
+```
+
+### Core entrypoint (`src`) and adapters
+
+Use `require("src")` only when you want to provide your own HTTP transport.
+In this case, `adapter` is required because plain Lua has no single standard HTTP API.
+
+Create a client with a custom adapter:
 
 ```lua
 local Surreal = require("src")
+
+local my_adapter = {
+  request = function(options, callback)
+    -- options: { url, method, headers, body, timeout_ms? }
+    -- callback(err, response)
+    -- response: { status = number, body = string, headers = table }
+  end,
+}
 
 local client = Surreal.new_client({
   url = "http://127.0.0.1:8000",
   adapter = my_adapter,
   namespace = "app", -- optional
   database = "main", -- optional
-  token = nil,         -- optional
-  timeout_ms = 5000,   -- optional
+  token = nil,       -- optional
+  timeout_ms = 5000, -- optional
 })
 ```
 
